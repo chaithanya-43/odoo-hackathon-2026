@@ -1,8 +1,10 @@
 const express = require("express");
+const deliveryRoutes = require("./routes/deliveryRoutes");
 const cors = require("cors");
 require("dotenv").config();
 
 const productRoutes = require("./routes/productRoutes");
+const receiptRoutes = require("./routes/receiptRoutes");
 
 const app = express();
 
@@ -17,6 +19,8 @@ app.get("/api/health", (req, res) => {
 });
 
 app.use("/api/products", productRoutes);
+app.use("/api/receipts", receiptRoutes);
+app.use("/api/deliveries", deliveryRoutes);
 
 const PORT = process.env.PORT || 5000;
 

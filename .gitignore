@@ -1,32 +1,8 @@
-# Dependencies
-node_modules/
-
-# Environment files
+﻿node_modules/
 .env
-.env.*
-!.env.example
-
-# Build output
+*.env
 dist/
 build/
-
-# Logs
+.vite/
+__pycache__/
 *.log
-npm-debug.log*
-yarn-debug.log*
-pnpm-debug.log*
-
-# IDE
-.vscode/
-.idea/
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Temporary files
-*.tmp
-*.temp
-
-# Test coverage
-coverage/

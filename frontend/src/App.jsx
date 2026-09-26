@@ -1,31 +1,44 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import Sidebar from './components/Sidebar'
+import Login from './pages/Login'
+import Signup from './pages/Signup'
+
+function DashboardPlaceholder() {
+  return (
+    <div>
+      <h1>Dashboard</h1>
+      <p>StockSense Inventory Management System</p>
+    </div>
+  )
+}
 
 function App() {
   return (
     <BrowserRouter>
-      <div className="app">
-        <Navbar />
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
 
-        <div className="app-body">
-          <Sidebar />
+        <Route
+          path="/*"
+          element={
+            <div className="app">
+              <Navbar />
 
-          <main className="main-content">
-            <Routes>
-              <Route
-                path="/"
-                element={
-                  <div>
-                    <h1>Dashboard</h1>
-                    <p>Welcome to StockSense Inventory Management System.</p>
-                  </div>
-                }
-              />
-            </Routes>
-          </main>
-        </div>
-      </div>
+              <div className="app-body">
+                <Sidebar />
+
+                <main className="main-content">
+                  <Routes>
+                    <Route path="/" element={<DashboardPlaceholder />} />
+                  </Routes>
+                </main>
+              </div>
+            </div>
+          }
+        />
+      </Routes>
     </BrowserRouter>
   )
 }

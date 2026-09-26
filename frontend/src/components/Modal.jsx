@@ -1,49 +1,23 @@
-import React from "react";
-
-function DataTable({ columns = [], data = [], loading = false }) {
-  if (loading) {
-    return (
-      <div className="table-loading">
-        Loading...
-      </div>
-    );
-  }
+function Modal({ open, title, children, onClose }) {
+  if (!open) return null;
 
   return (
-    <div className="table-wrapper">
-      <table className="data-table">
-        <thead>
-          <tr>
-            {columns.map((column) => (
-              <th key={column.key}>{column.label}</th>
-            ))}
-          </tr>
-        </thead>
+    <div className="modal-overlay" onClick={onClose}>
+      <div
+        className="modal-card"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="modal-header">
+          <h2>{title}</h2>
+          <button onClick={onClose}>×</button>
+        </div>
 
-        <tbody>
-          {data.length === 0 ? (
-            <tr>
-              <td colSpan={columns.length} className="empty-table">
-                No records found
-              </td>
-            </tr>
-          ) : (
-            data.map((row, index) => (
-              <tr key={row.id || index}>
-                {columns.map((column) => (
-                  <td key={column.key}>
-                    {column.render
-                      ? column.render(row)
-                      : row[column.key] ?? "-"}
-                  </td>
-                ))}
-              </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+        <div className="modal-body">
+          {children}
+        </div>
+      </div>
     </div>
   );
 }
 
-export default DataTable;
+export default Modal;

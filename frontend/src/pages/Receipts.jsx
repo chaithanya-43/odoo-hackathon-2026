@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import DataTable from "../components/DataTable";
@@ -8,24 +8,21 @@ import {
   validateReceipt
 } from "../services/api";
 
+const emptyForm = {
+  reference_no: "",
+  supplier: "",
+  product_id: "",
+  quantity: "",
+  location_id: "1"
+};
+
 function Receipts() {
   const [receipts, setReceipts] = useState([]);
-
-  const [formData, setFormData] = useState({
-    supplier: "",
-    product: "",
-    quantity: "",
-    location: ""
-  });
-
+  const [form, setForm] = useState(emptyForm);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-
-  useEffect(() => {
-    loadReceipts();
-  }, []);
 
   const loadReceipts = async () => {
     try {
@@ -47,31 +44,23 @@ function Receipts() {
     }
   };
 
-  const handleChange = (event) => {
-    setFormData((previous) => ({
-      ...previous,
-      [event.target.name]: event.target.value
-    }));
-  };
+  useEffect(() => {
+    loadReceipts();
+  }, []);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-
     setError("");
     setSuccess("");
 
     if (
-      !formData.supplier ||
-      !formData.product ||
-      !formData.quantity ||
-      !formData.location
+      !form.reference_no ||
+      !form.supplier ||
+      !form.product_id ||
+      !form.quantity ||
+      !form.location_id
     ) {
-      setError("Please fill all receipt fields");
-      return;
-    }
-
-    if (Number(formData.quantity) <= 0) {
-      setError("Quantity must be greater than zero");
+      setError("Please fill all receipt fields.");
       return;
     }
 
@@ -79,19 +68,19 @@ function Receipts() {
       setSaving(true);
 
       await createReceipt({
-        ...formData,
-        quantity: Number(formData.quantity)
+        reference_no: form.reference_no,
+        supplier: form.supplier,
+        location_id: Number(form.location_id),
+        items: [
+          {
+            product_id: Number(form.product_id),
+            quantity: Number(form.quantity)
+          }
+        ]
       });
 
-      setSuccess("Receipt created successfully");
-
-      setFormData({
-        supplier: "",
-        product: "",
-        quantity: "",
-        location: ""
-      });
-
+      setForm(emptyForm);
+      setSuccess("Receipt created successfully.");
       await loadReceipts();
     } catch (err) {
       setError(err.message || "Failed to create receipt");
@@ -100,40 +89,41 @@ function Receipts() {
     }
   };
 
-  const handleValidate = async (id) => {
+  const handleValidate = async (row) => {
+    const id = row.receipt_id ?? row.id;
+
     try {
       setError("");
       setSuccess("");
 
       await validateReceipt(id);
 
-      setSuccess("Receipt validated successfully");
-
+      setSuccess("Receipt validated successfully.");
       await loadReceipts();
     } catch (err) {
       setError(err.message || "Failed to validate receipt");
     }
   };
 
+  const status = (row) =>
+    String(row.status || "").toLowerCase();
+
   const columns = [
     {
-      key: "id",
-      label: "ID"
+      key: "receipt_id",
+      label: "ID",
+      render: (row) => row.receipt_id ?? row.id ?? "-"
+    },
+    {
+      key: "reference_no",
+      label: "Reference"
     },
     {
       key: "supplier",
       label: "Supplier"
     },
     {
-      key: "product",
-      label: "Product"
-    },
-    {
-      key: "quantity",
-      label: "Quantity"
-    },
-    {
-      key: "location",
+      key: "location_id",
       label: "Location"
     },
     {
@@ -143,18 +133,17 @@ function Receipts() {
     {
       key: "actions",
       label: "Actions",
-      render: (row) => (
-        row.status !== "validated" ? (
-          <button
-            className="table-action-btn"
-            onClick={() => handleValidate(row.id)}
-          >
-            Validate
-          </button>
-        ) : (
-          <span>Validated</span>
-        )
-      )
+      render: (row) =>
+        ["done", "validated", "completed"].includes(status(row))
+          ? "Validated"
+          : (
+            <button
+              className="table-action-btn"
+              onClick={() => handleValidate(row)}
+            >
+              Validate
+            </button>
+          )
     }
   ];
 
@@ -166,7 +155,6 @@ function Receipts() {
         <Navbar />
 
         <main className="page-content">
-
           <div className="page-header">
             <div>
               <h1>Receipts</h1>
@@ -174,33 +162,45 @@ function Receipts() {
             </div>
           </div>
 
-          <form
-            className="form-card"
-            onSubmit={handleSubmit}
-          >
+          <form className="form-card" onSubmit={handleSubmit}>
             <h2>Create Receipt</h2>
 
             <div className="form-grid">
+              <div className="form-group">
+                <label>Reference No</label>
+                <input
+                  name="reference_no"
+                  value={form.reference_no}
+                  onChange={(e) =>
+                    setForm({ ...form, reference_no: e.target.value })
+                  }
+                  placeholder="REC-001"
+                />
+              </div>
 
               <div className="form-group">
                 <label>Supplier</label>
                 <input
-                  type="text"
                   name="supplier"
-                  value={formData.supplier}
-                  onChange={handleChange}
+                  value={form.supplier}
+                  onChange={(e) =>
+                    setForm({ ...form, supplier: e.target.value })
+                  }
                   placeholder="Supplier"
                 />
               </div>
 
               <div className="form-group">
-                <label>Product</label>
+                <label>Product ID</label>
                 <input
-                  type="text"
-                  name="product"
-                  value={formData.product}
-                  onChange={handleChange}
-                  placeholder="Product ID"
+                  type="number"
+                  min="1"
+                  name="product_id"
+                  value={form.product_id}
+                  onChange={(e) =>
+                    setForm({ ...form, product_id: e.target.value })
+                  }
+                  placeholder="1"
                 />
               </div>
 
@@ -210,46 +210,35 @@ function Receipts() {
                   type="number"
                   min="1"
                   name="quantity"
-                  value={formData.quantity}
-                  onChange={handleChange}
-                  placeholder="Quantity"
+                  value={form.quantity}
+                  onChange={(e) =>
+                    setForm({ ...form, quantity: e.target.value })
+                  }
+                  placeholder="100"
                 />
               </div>
 
               <div className="form-group">
-                <label>Location</label>
+                <label>Location ID</label>
                 <input
-                  type="text"
-                  name="location"
-                  value={formData.location}
-                  onChange={handleChange}
-                  placeholder="Location"
+                  type="number"
+                  min="1"
+                  name="location_id"
+                  value={form.location_id}
+                  onChange={(e) =>
+                    setForm({ ...form, location_id: e.target.value })
+                  }
                 />
               </div>
-
             </div>
 
-            <button
-              type="submit"
-              className="primary-btn"
-              disabled={saving}
-            >
+            <button className="primary-btn" disabled={saving}>
               {saving ? "Creating..." : "Create Receipt"}
             </button>
-
           </form>
 
-          {error && (
-            <div className="error-message">
-              {error}
-            </div>
-          )}
-
-          {success && (
-            <div className="success-message">
-              {success}
-            </div>
-          )}
+          {error && <div className="error-message">{error}</div>}
+          {success && <div className="success-message">{success}</div>}
 
           <div className="section-card">
             <h2>Receipt History</h2>
@@ -260,7 +249,6 @@ function Receipts() {
               loading={loading}
             />
           </div>
-
         </main>
       </div>
     </div>

@@ -19,87 +19,41 @@ import Ledger from "./pages/Ledger";
 import Profile from "./pages/Profile";
 
 function App() {
+  const token = localStorage.getItem("token");
+
   return (
     <BrowserRouter>
       <Routes>
-
-        {/* Authentication */}
         <Route
-          path="/login"
-          element={<Login />}
-        />
-
-        <Route
-          path="/signup"
-          element={<Signup />}
-        />
-
-        {/* Dashboard */}
-        <Route
-          path="/dashboard"
-          element={<Dashboard />}
-        />
-
-        {/* Products */}
-        <Route
-          path="/products"
-          element={<Products />}
-        />
-
-        <Route
-          path="/products/new"
-          element={<ProductForm />}
-        />
-
-        <Route
-          path="/products/edit/:id"
-          element={<ProductForm />}
-        />
-
-        {/* Inventory Operations */}
-        <Route
-          path="/receipts"
-          element={<Receipts />}
-        />
-
-        <Route
-          path="/deliveries"
-          element={<Deliveries />}
-        />
-
-        <Route
-          path="/transfers"
-          element={<Transfers />}
-        />
-
-        <Route
-          path="/adjustments"
-          element={<Adjustments />}
-        />
-
-        {/* Stock Ledger */}
-        <Route
-          path="/ledger"
-          element={<Ledger />}
-        />
-
-        {/* Profile */}
-        <Route
-          path="/profile"
-          element={<Profile />}
-        />
-
-        {/* Unknown URL */}
-        <Route
-          path="*"
+          path="/"
           element={
             <Navigate
-              to="/login"
+              to={token ? "/dashboard" : "/login"}
               replace
             />
           }
         />
 
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+
+        <Route path="/dashboard" element={<Dashboard />} />
+
+        <Route path="/products" element={<Products />} />
+        <Route path="/products/new" element={<ProductForm />} />
+        <Route path="/products/edit/:id" element={<ProductForm />} />
+
+        <Route path="/receipts" element={<Receipts />} />
+        <Route path="/deliveries" element={<Deliveries />} />
+        <Route path="/transfers" element={<Transfers />} />
+        <Route path="/adjustments" element={<Adjustments />} />
+        <Route path="/ledger" element={<Ledger />} />
+        <Route path="/profile" element={<Profile />} />
+
+        <Route
+          path="*"
+          element={<Navigate to="/" replace />}
+        />
       </Routes>
     </BrowserRouter>
   );

@@ -1,247 +1,73 @@
-/* ================================
-   AUTHENTICATION PAGES
-================================ */
-
-.auth-page,
-.signup-container {
-  min-height: 100vh !important;
-  width: 100% !important;
-
-  display: flex !important;
-  justify-content: center !important;
-  align-items: center !important;
-
-  background: linear-gradient(
-    135deg,
-    #06152f 0%,
-    #0b2855 50%,
-    #06152f 100%
-  ) !important;
-
-  font-family: "Poppins", sans-serif !important;
-  box-sizing: border-box !important;
-  padding: 20px !important;
+.auth-page {
+  min-height: 100vh;
+  background: #f5f7fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
 }
 
-/* CARD */
-
-.auth-card,
-.signup-card {
-  width: 100% !important;
-  max-width: 430px !important;
-
-  padding: 40px !important;
-
-  background: rgba(255, 255, 255, 0.10) !important;
-
-  border: 1px solid rgba(255, 255, 255, 0.20) !important;
-  border-radius: 24px !important;
-
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4) !important;
-
-  backdrop-filter: blur(20px) !important;
-  -webkit-backdrop-filter: blur(20px) !important;
-
-  color: #ffffff !important;
-
-  box-sizing: border-box !important;
+.auth-card {
+  width: min(430px, 100%);
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 34px;
+  box-shadow: 0 8px 30px rgba(0,0,0,.06);
 }
 
-/* EVERYTHING INSIDE CARD */
-
-.auth-card *,
-.signup-card * {
-  box-sizing: border-box;
+.auth-logo {
+  font-size: 25px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 25px;
 }
 
-/* HEADER */
-
-.auth-header,
-.signup-header {
-  text-align: center !important;
-  margin-bottom: 30px !important;
+.auth-card h1 {
+  font-size: 28px;
+  margin-bottom: 8px;
 }
 
-.auth-header h1,
-.auth-header h2,
-.signup-header h1,
-.signup-header h2 {
-  color: #ffffff !important;
-  font-size: 28px !important;
-  font-weight: 700 !important;
-  margin: 10px 0 !important;
+.auth-subtitle {
+  color: #64748b;
+  margin-bottom: 25px;
 }
 
-.auth-header p,
-.signup-header p {
-  color: rgba(255, 255, 255, 0.7) !important;
-  font-size: 14px !important;
+.auth-card form {
+  display: grid;
+  gap: 17px;
 }
 
-/* LOGO */
-
-.auth-logo,
-.logo {
-  width: 70px !important;
-  height: 70px !important;
-
-  margin: 0 auto 18px !important;
-
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-
-  border-radius: 20px !important;
-
-  background: linear-gradient(
-    135deg,
-    #38bdf8,
-    #2563eb
-  ) !important;
+.auth-button {
+  border: none;
+  border-radius: 7px;
+  padding: 12px;
+  background: #111827;
+  color: white;
+  font-weight: 600;
 }
 
-.auth-logo i,
-.logo i {
-  color: white !important;
-  font-size: 32px !important;
+.auth-button:disabled {
+  opacity: .6;
 }
 
-/* INPUT CONTAINER */
-
-.input-group,
-.input-box {
-  position: relative !important;
-  margin-bottom: 20px !important;
+.form-error {
+  padding: 11px;
+  border-radius: 7px;
+  background: #fee2e2;
+  color: #991b1b;
+  font-size: 14px;
 }
 
-/* INPUT ICON */
-
-.input-group i,
-.input-box i {
-  color: rgba(255, 255, 255, 0.7) !important;
+.auth-footer {
+  text-align: center;
+  margin-top: 22px;
+  color: #64748b;
+  font-size: 14px;
 }
 
-/* INPUT */
-
-.input-group input,
-.input-box input {
-  width: 100% !important;
-  height: 54px !important;
-
-  padding: 0 16px 0 48px !important;
-
-  background: rgba(255, 255, 255, 0.08) !important;
-
-  border: 1px solid rgba(255, 255, 255, 0.20) !important;
-  border-radius: 12px !important;
-
-  outline: none !important;
-
-  color: #ffffff !important;
-
-  font-family: "Poppins", sans-serif !important;
-  font-size: 14px !important;
-}
-
-.input-group input::placeholder,
-.input-box input::placeholder {
-  color: rgba(255, 255, 255, 0.6) !important;
-}
-
-.input-group input:focus,
-.input-box input:focus {
-  border-color: #38bdf8 !important;
-
-  box-shadow:
-    0 0 0 3px rgba(56, 189, 248, 0.15) !important;
-}
-
-/* LABEL */
-
-.input-box label,
-.input-group label {
-  color: rgba(255, 255, 255, 0.85) !important;
-}
-
-/* BUTTON */
-
-.auth-button,
-.signup-button {
-  width: 100% !important;
-  height: 54px !important;
-
-  border: none !important;
-  border-radius: 12px !important;
-
-  background: linear-gradient(
-    135deg,
-    #38bdf8,
-    #2563eb
-  ) !important;
-
-  color: white !important;
-
-  font-family: "Poppins", sans-serif !important;
-  font-size: 15px !important;
-  font-weight: 600 !important;
-
-  cursor: pointer !important;
-
-  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.4) !important;
-}
-
-.auth-button:hover,
-.signup-button:hover {
-  transform: translateY(-2px);
-}
-
-/* FOOTER */
-
-.auth-footer,
-.login-link {
-  text-align: center !important;
-  margin-top: 22px !important;
-
-  color: rgba(255, 255, 255, 0.7) !important;
-  font-size: 13px !important;
-}
-
-.auth-footer a,
-.login-link a {
-  color: #38bdf8 !important;
-  font-weight: 600 !important;
-  text-decoration: none !important;
-}
-
-/* TERMS */
-
-.terms {
-  color: rgba(255, 255, 255, 0.7) !important;
-  font-size: 12px !important;
-}
-
-.terms label {
-  color: rgba(255, 255, 255, 0.7) !important;
-}
-
-/* ERROR */
-
-.auth-error,
-.error-message {
-  color: #ffb4b4 !important;
-  background: rgba(255, 0, 0, 0.12) !important;
-
-  padding: 10px !important;
-  border-radius: 8px !important;
-
-  margin-bottom: 15px !important;
-}
-
-/* MOBILE */
-
-@media (max-width: 500px) {
-  .auth-card,
-  .signup-card {
-    padding: 28px 22px !important;
-  }
+.auth-footer a {
+  color: #111827;
+  font-weight: 600;
+  margin-left: 5px;
 }

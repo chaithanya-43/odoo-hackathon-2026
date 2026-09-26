@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import DataTable from "../components/DataTable";
@@ -6,19 +6,12 @@ import { getLedger } from "../services/api";
 
 function Ledger() {
   const [ledger, setLedger] = useState([]);
-
   const [filters, setFilters] = useState({
-    date: "",
-    product: "",
-    movementType: ""
+    product_id: "",
+    location_id: ""
   });
-
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
-  useEffect(() => {
-    loadLedger();
-  }, []);
 
   const loadLedger = async () => {
     try {
@@ -40,41 +33,59 @@ function Ledger() {
     }
   };
 
-  const handleChange = (event) => {
-    setFilters((previous) => ({
-      ...previous,
-      [event.target.name]: event.target.value
-    }));
-  };
+  useEffect(() => {
+    loadLedger();
+  }, []);
 
   const columns = [
     {
-      key: "date",
-      label: "Date"
+      key: "ledger_id",
+      label: "ID",
+      render: (row) => row.ledger_id ?? row.id ?? "-"
     },
     {
-      key: "product",
-      label: "Product"
+      key: "movement_type",
+      label: "Movement",
+      render: (row) =>
+        row.movement_type ??
+        row.movementType ??
+        "-"
     },
     {
-      key: "movementType",
-      label: "Movement Type"
+      key: "product_id",
+      label: "Product",
+      render: (row) =>
+        row.product_id ??
+        row.product ??
+        "-"
     },
     {
       key: "quantity",
       label: "Quantity"
     },
     {
-      key: "source",
-      label: "Source"
+      key: "location_id",
+      label: "Location",
+      render: (row) =>
+        row.location_id ??
+        row.location ??
+        "-"
     },
     {
-      key: "destination",
-      label: "Destination"
+      key: "reference_no",
+      label: "Reference",
+      render: (row) =>
+        row.reference_no ??
+        row.reference ??
+        "-"
     },
     {
-      key: "reference",
-      label: "Reference"
+      key: "created_at",
+      label: "Date",
+      render: (row) =>
+        row.created_at ??
+        row.date ??
+        "-"
     }
   ];
 
@@ -86,42 +97,39 @@ function Ledger() {
         <Navbar />
 
         <main className="page-content">
-
           <div className="page-header">
             <div>
               <h1>Stock Ledger</h1>
-              <p>View complete inventory movement history</p>
+              <p>Complete inventory movement history</p>
             </div>
           </div>
 
           <div className="filter-bar">
-
             <input
-              type="date"
-              name="date"
-              value={filters.date}
-              onChange={handleChange}
+              type="number"
+              min="1"
+              placeholder="Product ID"
+              value={filters.product_id}
+              onChange={(e) =>
+                setFilters({
+                  ...filters,
+                  product_id: e.target.value
+                })
+              }
             />
 
             <input
-              type="text"
-              name="product"
-              value={filters.product}
-              onChange={handleChange}
-              placeholder="Product"
+              type="number"
+              min="1"
+              placeholder="Location ID"
+              value={filters.location_id}
+              onChange={(e) =>
+                setFilters({
+                  ...filters,
+                  location_id: e.target.value
+                })
+              }
             />
-
-            <select
-              name="movementType"
-              value={filters.movementType}
-              onChange={handleChange}
-            >
-              <option value="">All Movement Types</option>
-              <option value="receipt">Receipt</option>
-              <option value="delivery">Delivery</option>
-              <option value="transfer">Transfer</option>
-              <option value="adjustment">Adjustment</option>
-            </select>
 
             <button
               className="secondary-btn"
@@ -129,21 +137,15 @@ function Ledger() {
             >
               Filter
             </button>
-
           </div>
 
-          {error && (
-            <div className="error-message">
-              {error}
-            </div>
-          )}
+          {error && <div className="error-message">{error}</div>}
 
           <DataTable
             columns={columns}
             data={ledger}
             loading={loading}
           />
-
         </main>
       </div>
     </div>

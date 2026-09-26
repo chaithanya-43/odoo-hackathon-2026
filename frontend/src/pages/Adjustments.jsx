@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import DataTable from "../components/DataTable";
@@ -8,24 +8,21 @@ import {
   validateAdjustment
 } from "../services/api";
 
+const emptyForm = {
+  reference_no: "",
+  location_id: "1",
+  product_id: "",
+  physical_quantity: "",
+  reason: ""
+};
+
 function Adjustments() {
   const [adjustments, setAdjustments] = useState([]);
-
-  const [formData, setFormData] = useState({
-    product: "",
-    location: "",
-    physicalCount: "",
-    reason: ""
-  });
-
+  const [form, setForm] = useState(emptyForm);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-
-  useEffect(() => {
-    loadAdjustments();
-  }, []);
 
   const loadAdjustments = async () => {
     try {
@@ -47,31 +44,28 @@ function Adjustments() {
     }
   };
 
-  const handleChange = (event) => {
-    setFormData((previous) => ({
-      ...previous,
-      [event.target.name]: event.target.value
-    }));
-  };
+  useEffect(() => {
+    loadAdjustments();
+  }, []);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-
     setError("");
     setSuccess("");
 
     if (
-      !formData.product ||
-      !formData.location ||
-      formData.physicalCount === "" ||
-      !formData.reason
+      !form.reference_no ||
+      !form.location_id ||
+      !form.product_id ||
+      form.physical_quantity === "" ||
+      !form.reason
     ) {
-      setError("Please fill all adjustment fields");
+      setError("Please fill all adjustment fields.");
       return;
     }
 
-    if (Number(formData.physicalCount) < 0) {
-      setError("Physical count cannot be negative");
+    if (Number(form.physical_quantity) < 0) {
+      setError("Physical quantity cannot be negative.");
       return;
     }
 
@@ -79,19 +73,19 @@ function Adjustments() {
       setSaving(true);
 
       await createAdjustment({
-        ...formData,
-        physicalCount: Number(formData.physicalCount)
+        reference_no: form.reference_no,
+        location_id: Number(form.location_id),
+        reason: form.reason,
+        items: [
+          {
+            product_id: Number(form.product_id),
+            physical_quantity: Number(form.physical_quantity)
+          }
+        ]
       });
 
-      setSuccess("Adjustment created successfully");
-
-      setFormData({
-        product: "",
-        location: "",
-        physicalCount: "",
-        reason: ""
-      });
-
+      setForm(emptyForm);
+      setSuccess("Adjustment created successfully.");
       await loadAdjustments();
     } catch (err) {
       setError(err.message || "Failed to create adjustment");
@@ -100,49 +94,38 @@ function Adjustments() {
     }
   };
 
-  const handleValidate = async (id) => {
+  const handleValidate = async (row) => {
+    const id = row.adjustment_id ?? row.id;
+
     try {
       setError("");
       setSuccess("");
 
       await validateAdjustment(id);
 
-      setSuccess("Adjustment validated successfully");
-
+      setSuccess("Adjustment validated successfully.");
       await loadAdjustments();
     } catch (err) {
-      setError(err.message || "Failed to validate adjustment");
+      setError(err.message || "Adjustment validation failed");
     }
   };
 
+  const status = (row) =>
+    String(row.status || "").toLowerCase();
+
   const columns = [
     {
-      key: "id",
-      label: "ID"
+      key: "adjustment_id",
+      label: "ID",
+      render: (row) => row.adjustment_id ?? row.id ?? "-"
     },
     {
-      key: "product",
-      label: "Product"
+      key: "reference_no",
+      label: "Reference"
     },
     {
-      key: "location",
+      key: "location_id",
       label: "Location"
-    },
-    {
-      key: "current",
-      label: "Current",
-      render: (row) =>
-        row.current ??
-        row.currentStock ??
-        0
-    },
-    {
-      key: "physicalCount",
-      label: "Physical Count"
-    },
-    {
-      key: "difference",
-      label: "Difference"
     },
     {
       key: "reason",
@@ -156,16 +139,16 @@ function Adjustments() {
       key: "actions",
       label: "Actions",
       render: (row) =>
-        row.status !== "validated" ? (
-          <button
-            className="table-action-btn"
-            onClick={() => handleValidate(row.id)}
-          >
-            Validate
-          </button>
-        ) : (
-          <span>Validated</span>
-        )
+        ["done", "validated", "completed"].includes(status(row))
+          ? "Validated"
+          : (
+            <button
+              className="table-action-btn"
+              onClick={() => handleValidate(row)}
+            >
+              Validate
+            </button>
+          )
     }
   ];
 
@@ -177,89 +160,88 @@ function Adjustments() {
         <Navbar />
 
         <main className="page-content">
-
           <div className="page-header">
             <div>
               <h1>Inventory Adjustments</h1>
-              <p>Record physical inventory adjustments</p>
+              <p>Set physical stock counts</p>
             </div>
           </div>
 
-          <form
-            className="form-card"
-            onSubmit={handleSubmit}
-          >
+          <form className="form-card" onSubmit={handleSubmit}>
             <h2>Create Adjustment</h2>
 
             <div className="form-grid">
-
               <div className="form-group">
-                <label>Product</label>
+                <label>Reference No</label>
                 <input
-                  type="text"
-                  name="product"
-                  value={formData.product}
-                  onChange={handleChange}
-                  placeholder="Product ID"
+                  value={form.reference_no}
+                  onChange={(e) =>
+                    setForm({ ...form, reference_no: e.target.value })
+                  }
+                  placeholder="ADJ-001"
                 />
               </div>
 
               <div className="form-group">
-                <label>Location</label>
+                <label>Location ID</label>
                 <input
-                  type="text"
-                  name="location"
-                  value={formData.location}
-                  onChange={handleChange}
-                  placeholder="Location"
+                  type="number"
+                  min="1"
+                  value={form.location_id}
+                  onChange={(e) =>
+                    setForm({ ...form, location_id: e.target.value })
+                  }
                 />
               </div>
 
               <div className="form-group">
-                <label>Physical Count</label>
+                <label>Product ID</label>
+                <input
+                  type="number"
+                  min="1"
+                  value={form.product_id}
+                  onChange={(e) =>
+                    setForm({ ...form, product_id: e.target.value })
+                  }
+                  placeholder="1"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Physical Quantity</label>
                 <input
                   type="number"
                   min="0"
-                  name="physicalCount"
-                  value={formData.physicalCount}
-                  onChange={handleChange}
-                  placeholder="Physical count"
+                  value={form.physical_quantity}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      physical_quantity: e.target.value
+                    })
+                  }
+                  placeholder="77"
                 />
               </div>
 
-              <div className="form-group">
+              <div className="form-group form-wide">
                 <label>Reason</label>
                 <input
-                  type="text"
-                  name="reason"
-                  value={formData.reason}
-                  onChange={handleChange}
-                  placeholder="Reason"
+                  value={form.reason}
+                  onChange={(e) =>
+                    setForm({ ...form, reason: e.target.value })
+                  }
+                  placeholder="Damaged stock"
                 />
               </div>
-
             </div>
 
-            <button
-              type="submit"
-              className="primary-btn"
-              disabled={saving}
-            >
+            <button className="primary-btn" disabled={saving}>
               {saving ? "Creating..." : "Create Adjustment"}
             </button>
           </form>
 
-          {error && (
-            <div className="error-message">
-              {error}
-            </div>
-          )}
-
-          {success && (
-            <div className="success-message">
-              {success}
-            </div>
-          )}
+          {error && <div className="error-message">{error}</div>}
+          {success && <div className="success-message">{success}</div>}
 
           <div className="section-card">
             <h2>Adjustment History</h2>
@@ -270,7 +252,6 @@ function Adjustments() {
               loading={loading}
             />
           </div>
-
         </main>
       </div>
     </div>

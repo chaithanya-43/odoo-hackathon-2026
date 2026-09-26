@@ -1,142 +1,137 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import DataTable from "../components/DataTable";
 import {
-  createDelivery,
-  getDeliveries,
-  validateDelivery
+  createTransfer,
+  getTransfers,
+  validateTransfer
 } from "../services/api";
 
-function Deliveries() {
-  const [deliveries, setDeliveries] = useState([]);
+const emptyForm = {
+  reference_no: "",
+  product_id: "",
+  quantity: "",
+  source_location_id: "",
+  destination_location_id: ""
+};
 
-  const [formData, setFormData] = useState({
-    customer: "",
-    product: "",
-    quantity: "",
-    location: ""
-  });
-
+function Transfers() {
+  const [transfers, setTransfers] = useState([]);
+  const [form, setForm] = useState(emptyForm);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  useEffect(() => {
-    loadDeliveries();
-  }, []);
-
-  const loadDeliveries = async () => {
+  const loadTransfers = async () => {
     try {
       setLoading(true);
       setError("");
 
-      const response = await getDeliveries();
+      const response = await getTransfers();
       const data = response?.data;
 
-      setDeliveries(
+      setTransfers(
         Array.isArray(data)
           ? data
-          : data?.deliveries || []
+          : data?.transfers || []
       );
     } catch (err) {
-      setError(err.message || "Failed to load deliveries");
+      setError(err.message || "Failed to load transfers");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleChange = (event) => {
-    setFormData((previous) => ({
-      ...previous,
-      [event.target.name]: event.target.value
-    }));
-  };
+  useEffect(() => {
+    loadTransfers();
+  }, []);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-
     setError("");
     setSuccess("");
 
     if (
-      !formData.customer ||
-      !formData.product ||
-      !formData.quantity ||
-      !formData.location
+      !form.reference_no ||
+      !form.product_id ||
+      !form.quantity ||
+      !form.source_location_id ||
+      !form.destination_location_id
     ) {
-      setError("Please fill all delivery fields");
+      setError("Please fill all transfer fields.");
       return;
     }
 
-    if (Number(formData.quantity) <= 0) {
-      setError("Quantity must be greater than zero");
+    if (
+      form.source_location_id === form.destination_location_id
+    ) {
+      setError("Source and destination locations must be different.");
       return;
     }
 
     try {
       setSaving(true);
 
-      await createDelivery({
-        ...formData,
-        quantity: Number(formData.quantity)
+      await createTransfer({
+        reference_no: form.reference_no,
+        source_location_id: Number(form.source_location_id),
+        destination_location_id: Number(form.destination_location_id),
+        items: [
+          {
+            product_id: Number(form.product_id),
+            quantity: Number(form.quantity)
+          }
+        ]
       });
 
-      setSuccess("Delivery created successfully");
-
-      setFormData({
-        customer: "",
-        product: "",
-        quantity: "",
-        location: ""
-      });
-
-      await loadDeliveries();
+      setForm(emptyForm);
+      setSuccess("Transfer created successfully.");
+      await loadTransfers();
     } catch (err) {
-      setError(err.message || "Failed to create delivery");
+      setError(err.message || "Failed to create transfer");
     } finally {
       setSaving(false);
     }
   };
 
-  const handleValidate = async (id) => {
+  const handleValidate = async (row) => {
+    const id = row.transfer_id ?? row.id;
+
     try {
       setError("");
       setSuccess("");
 
-      await validateDelivery(id);
+      await validateTransfer(id);
 
-      setSuccess("Delivery validated successfully");
-
-      await loadDeliveries();
+      setSuccess("Transfer validated successfully.");
+      await loadTransfers();
     } catch (err) {
-      setError(
-        err.message || "Insufficient stock or validation failed"
-      );
+      setError(err.message || "Transfer validation failed");
     }
   };
 
+  const status = (row) =>
+    String(row.status || "").toLowerCase();
+
   const columns = [
     {
-      key: "id",
-      label: "ID"
+      key: "transfer_id",
+      label: "ID",
+      render: (row) => row.transfer_id ?? row.id ?? "-"
     },
     {
-      key: "customer",
-      label: "Customer"
+      key: "reference_no",
+      label: "Reference"
     },
     {
-      key: "product",
-      label: "Product"
+      key: "source_location_id",
+      label: "Source"
     },
     {
-      key: "quantity",
-      label: "Quantity"
-    },
-    {
-      key: "location",
-      label: "Location"
+      key: "destination_location_id",
+      label: "Destination"
     },
     {
       key: "status",
@@ -145,18 +140,17 @@ function Deliveries() {
     {
       key: "actions",
       label: "Actions",
-      render: (row) => (
-        row.status !== "validated" ? (
-          <button
-            className="table-action-btn"
-            onClick={() => handleValidate(row.id)}
-          >
-            Validate
-          </button>
-        ) : (
-          <span>Validated</span>
-        )
-      )
+      render: (row) =>
+        ["done", "validated", "completed"].includes(status(row))
+          ? "Validated"
+          : (
+            <button
+              className="table-action-btn"
+              onClick={() => handleValidate(row)}
+            >
+              Validate
+            </button>
+          )
     }
   ];
 
@@ -168,41 +162,38 @@ function Deliveries() {
         <Navbar />
 
         <main className="page-content">
-
           <div className="page-header">
             <div>
-              <h1>Deliveries</h1>
-              <p>Manage outgoing inventory deliveries</p>
+              <h1>Internal Transfers</h1>
+              <p>Move stock between locations</p>
             </div>
           </div>
 
-          <form
-            className="form-card"
-            onSubmit={handleSubmit}
-          >
-            <h2>Create Delivery</h2>
+          <form className="form-card" onSubmit={handleSubmit}>
+            <h2>Create Transfer</h2>
 
             <div className="form-grid">
-
               <div className="form-group">
-                <label>Customer</label>
+                <label>Reference No</label>
                 <input
-                  type="text"
-                  name="customer"
-                  value={formData.customer}
-                  onChange={handleChange}
-                  placeholder="Customer"
+                  value={form.reference_no}
+                  onChange={(e) =>
+                    setForm({ ...form, reference_no: e.target.value })
+                  }
+                  placeholder="TRF-001"
                 />
               </div>
 
               <div className="form-group">
-                <label>Product</label>
+                <label>Product ID</label>
                 <input
-                  type="text"
-                  name="product"
-                  value={formData.product}
-                  onChange={handleChange}
-                  placeholder="Product ID"
+                  type="number"
+                  min="1"
+                  value={form.product_id}
+                  onChange={(e) =>
+                    setForm({ ...form, product_id: e.target.value })
+                  }
+                  placeholder="1"
                 />
               </div>
 
@@ -211,62 +202,68 @@ function Deliveries() {
                 <input
                   type="number"
                   min="1"
-                  name="quantity"
-                  value={formData.quantity}
-                  onChange={handleChange}
-                  placeholder="Quantity"
+                  value={form.quantity}
+                  onChange={(e) =>
+                    setForm({ ...form, quantity: e.target.value })
+                  }
+                  placeholder="10"
                 />
               </div>
 
               <div className="form-group">
-                <label>Location</label>
+                <label>Source Location ID</label>
                 <input
-                  type="text"
-                  name="location"
-                  value={formData.location}
-                  onChange={handleChange}
-                  placeholder="Location"
+                  type="number"
+                  min="1"
+                  value={form.source_location_id}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      source_location_id: e.target.value
+                    })
+                  }
+                  placeholder="1"
                 />
               </div>
 
+              <div className="form-group">
+                <label>Destination Location ID</label>
+                <input
+                  type="number"
+                  min="1"
+                  value={form.destination_location_id}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      destination_location_id: e.target.value
+                    })
+                  }
+                  placeholder="2"
+                />
+              </div>
             </div>
 
-            <button
-              type="submit"
-              className="primary-btn"
-              disabled={saving}
-            >
-              {saving ? "Creating..." : "Create Delivery"}
+            <button className="primary-btn" disabled={saving}>
+              {saving ? "Creating..." : "Create Transfer"}
             </button>
-
           </form>
 
-          {error && (
-            <div className="error-message">
-              {error}
-            </div>
-          )}
-
-          {success && (
-            <div className="success-message">
-              {success}
-            </div>
-          )}
+          {error && <div className="error-message">{error}</div>}
+          {success && <div className="success-message">{success}</div>}
 
           <div className="section-card">
-            <h2>Delivery History</h2>
+            <h2>Transfer History</h2>
 
             <DataTable
               columns={columns}
-              data={deliveries}
+              data={transfers}
               loading={loading}
             />
           </div>
-
         </main>
       </div>
     </div>
   );
 }
 
-export default Deliveries;
+export default Transfers;

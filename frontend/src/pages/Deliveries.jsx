@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import DataTable from "../components/DataTable";
@@ -8,24 +8,21 @@ import {
   validateDelivery
 } from "../services/api";
 
+const emptyForm = {
+  reference_no: "",
+  customer: "",
+  product_id: "",
+  quantity: "",
+  location_id: "1"
+};
+
 function Deliveries() {
   const [deliveries, setDeliveries] = useState([]);
-
-  const [formData, setFormData] = useState({
-    customer: "",
-    product: "",
-    quantity: "",
-    location: ""
-  });
-
+  const [form, setForm] = useState(emptyForm);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-
-  useEffect(() => {
-    loadDeliveries();
-  }, []);
 
   const loadDeliveries = async () => {
     try {
@@ -47,31 +44,23 @@ function Deliveries() {
     }
   };
 
-  const handleChange = (event) => {
-    setFormData((previous) => ({
-      ...previous,
-      [event.target.name]: event.target.value
-    }));
-  };
+  useEffect(() => {
+    loadDeliveries();
+  }, []);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-
     setError("");
     setSuccess("");
 
     if (
-      !formData.customer ||
-      !formData.product ||
-      !formData.quantity ||
-      !formData.location
+      !form.reference_no ||
+      !form.customer ||
+      !form.product_id ||
+      !form.quantity ||
+      !form.location_id
     ) {
-      setError("Please fill all delivery fields");
-      return;
-    }
-
-    if (Number(formData.quantity) <= 0) {
-      setError("Quantity must be greater than zero");
+      setError("Please fill all delivery fields.");
       return;
     }
 
@@ -79,19 +68,19 @@ function Deliveries() {
       setSaving(true);
 
       await createDelivery({
-        ...formData,
-        quantity: Number(formData.quantity)
+        reference_no: form.reference_no,
+        customer: form.customer,
+        location_id: Number(form.location_id),
+        items: [
+          {
+            product_id: Number(form.product_id),
+            quantity: Number(form.quantity)
+          }
+        ]
       });
 
-      setSuccess("Delivery created successfully");
-
-      setFormData({
-        customer: "",
-        product: "",
-        quantity: "",
-        location: ""
-      });
-
+      setForm(emptyForm);
+      setSuccess("Delivery created successfully.");
       await loadDeliveries();
     } catch (err) {
       setError(err.message || "Failed to create delivery");
@@ -100,42 +89,41 @@ function Deliveries() {
     }
   };
 
-  const handleValidate = async (id) => {
+  const handleValidate = async (row) => {
+    const id = row.delivery_id ?? row.id;
+
     try {
       setError("");
       setSuccess("");
 
       await validateDelivery(id);
 
-      setSuccess("Delivery validated successfully");
-
+      setSuccess("Delivery validated successfully.");
       await loadDeliveries();
     } catch (err) {
-      setError(
-        err.message || "Insufficient stock or validation failed"
-      );
+      setError(err.message || "Insufficient stock or validation failed");
     }
   };
 
+  const status = (row) =>
+    String(row.status || "").toLowerCase();
+
   const columns = [
     {
-      key: "id",
-      label: "ID"
+      key: "delivery_id",
+      label: "ID",
+      render: (row) => row.delivery_id ?? row.id ?? "-"
+    },
+    {
+      key: "reference_no",
+      label: "Reference"
     },
     {
       key: "customer",
       label: "Customer"
     },
     {
-      key: "product",
-      label: "Product"
-    },
-    {
-      key: "quantity",
-      label: "Quantity"
-    },
-    {
-      key: "location",
+      key: "location_id",
       label: "Location"
     },
     {
@@ -145,18 +133,17 @@ function Deliveries() {
     {
       key: "actions",
       label: "Actions",
-      render: (row) => (
-        row.status !== "validated" ? (
-          <button
-            className="table-action-btn"
-            onClick={() => handleValidate(row.id)}
-          >
-            Validate
-          </button>
-        ) : (
-          <span>Validated</span>
-        )
-      )
+      render: (row) =>
+        ["done", "validated", "completed"].includes(status(row))
+          ? "Validated"
+          : (
+            <button
+              className="table-action-btn"
+              onClick={() => handleValidate(row)}
+            >
+              Validate
+            </button>
+          )
     }
   ];
 
@@ -168,41 +155,49 @@ function Deliveries() {
         <Navbar />
 
         <main className="page-content">
-
           <div className="page-header">
             <div>
               <h1>Deliveries</h1>
-              <p>Manage outgoing inventory deliveries</p>
+              <p>Deliver products from inventory</p>
             </div>
           </div>
 
-          <form
-            className="form-card"
-            onSubmit={handleSubmit}
-          >
+          <form className="form-card" onSubmit={handleSubmit}>
             <h2>Create Delivery</h2>
 
             <div className="form-grid">
+              <div className="form-group">
+                <label>Reference No</label>
+                <input
+                  value={form.reference_no}
+                  onChange={(e) =>
+                    setForm({ ...form, reference_no: e.target.value })
+                  }
+                  placeholder="DEL-001"
+                />
+              </div>
 
               <div className="form-group">
                 <label>Customer</label>
                 <input
-                  type="text"
-                  name="customer"
-                  value={formData.customer}
-                  onChange={handleChange}
+                  value={form.customer}
+                  onChange={(e) =>
+                    setForm({ ...form, customer: e.target.value })
+                  }
                   placeholder="Customer"
                 />
               </div>
 
               <div className="form-group">
-                <label>Product</label>
+                <label>Product ID</label>
                 <input
-                  type="text"
-                  name="product"
-                  value={formData.product}
-                  onChange={handleChange}
-                  placeholder="Product ID"
+                  type="number"
+                  min="1"
+                  value={form.product_id}
+                  onChange={(e) =>
+                    setForm({ ...form, product_id: e.target.value })
+                  }
+                  placeholder="1"
                 />
               </div>
 
@@ -211,47 +206,34 @@ function Deliveries() {
                 <input
                   type="number"
                   min="1"
-                  name="quantity"
-                  value={formData.quantity}
-                  onChange={handleChange}
-                  placeholder="Quantity"
+                  value={form.quantity}
+                  onChange={(e) =>
+                    setForm({ ...form, quantity: e.target.value })
+                  }
+                  placeholder="20"
                 />
               </div>
 
               <div className="form-group">
-                <label>Location</label>
+                <label>Location ID</label>
                 <input
-                  type="text"
-                  name="location"
-                  value={formData.location}
-                  onChange={handleChange}
-                  placeholder="Location"
+                  type="number"
+                  min="1"
+                  value={form.location_id}
+                  onChange={(e) =>
+                    setForm({ ...form, location_id: e.target.value })
+                  }
                 />
               </div>
-
             </div>
 
-            <button
-              type="submit"
-              className="primary-btn"
-              disabled={saving}
-            >
+            <button className="primary-btn" disabled={saving}>
               {saving ? "Creating..." : "Create Delivery"}
             </button>
-
           </form>
 
-          {error && (
-            <div className="error-message">
-              {error}
-            </div>
-          )}
-
-          {success && (
-            <div className="success-message">
-              {success}
-            </div>
-          )}
+          {error && <div className="error-message">{error}</div>}
+          {success && <div className="success-message">{success}</div>}
 
           <div className="section-card">
             <h2>Delivery History</h2>
@@ -262,7 +244,6 @@ function Deliveries() {
               loading={loading}
             />
           </div>
-
         </main>
       </div>
     </div>

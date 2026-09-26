@@ -1,16 +1,11 @@
-import React from "react";
-
-function StatCard({ title, value, icon }) {
+function StatCard({ title, value, description }) {
   return (
     <div className="stat-card">
-      <div className="stat-card-icon">
-        <i className={`bx ${icon}`}></i>
-      </div>
-
-      <div className="stat-card-content">
-        <p>{title}</p>
-        <h2>{value ?? 0}</h2>
-      </div>
+      <p className="stat-card-title">{title}</p>
+      <h2 className="stat-card-value">{value ?? 0}</h2>
+      {description && (
+        <p className="stat-card-description">{description}</p>
+      )}
     </div>
   );
 }

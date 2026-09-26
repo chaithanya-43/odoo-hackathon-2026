@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import "../Authentication.css";
 import { signup } from "../services/api";
+import "../Authentication.css";
 
 function Signup() {
   const navigate = useNavigate();
@@ -10,30 +10,14 @@ function Signup() {
     name: "",
     email: "",
     password: "",
-    confirmPassword: "",
+    confirmPassword: ""
   });
 
-  const [agreeTerms, setAgreeTerms] =
-    useState(false);
-
-  const [loading, setLoading] =
-    useState(false);
-
-  const [error, setError] =
-    useState("");
-
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-
-    setForm((previous) => ({
-      ...previous,
-      [name]: value,
-    }));
-  };
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-
     setError("");
 
     if (
@@ -42,25 +26,12 @@ function Signup() {
       !form.password ||
       !form.confirmPassword
     ) {
-      setError(
-        "Please fill in all required fields."
-      );
+      setError("Please fill all fields.");
       return;
     }
 
-    if (
-      form.password !== form.confirmPassword
-    ) {
-      setError(
-        "Passwords do not match."
-      );
-      return;
-    }
-
-    if (!agreeTerms) {
-      setError(
-        "Please agree to the Terms & Conditions."
-      );
+    if (form.password !== form.confirmPassword) {
+      setError("Passwords do not match.");
       return;
     }
 
@@ -70,176 +41,93 @@ function Signup() {
       await signup({
         name: form.name,
         email: form.email,
-        password: form.password,
+        password: form.password
       });
 
       navigate("/login");
-    } catch (error) {
-      setError(
-        error.message ||
-          "Registration failed."
-      );
+    } catch (err) {
+      setError(err.message || "Registration failed.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="signup-container">
+    <div className="auth-page">
+      <div className="auth-card">
+        <div className="auth-logo">StockSense</div>
 
-      <div className="signup-card">
-
-        <div className="signup-header">
-
-          <div className="logo">
-            <i className="bx bx-user-plus"></i>
-          </div>
-
-          <h1>Create Account</h1>
-
-          <p>
-            Join us and get started today
-          </p>
-
-        </div>
+        <h1>Create Account</h1>
+        <p className="auth-subtitle">
+          Create your inventory management account
+        </p>
 
         <form onSubmit={handleSubmit}>
-
-          <div className="input-box">
-
-            <i className="bx bx-user"></i>
-
+          <div className="form-group">
+            <label>Name</label>
             <input
-              type="text"
-              name="name"
               value={form.name}
-              onChange={handleChange}
-              placeholder=" "
-              autoComplete="name"
-              required
+              onChange={(e) =>
+                setForm({ ...form, name: e.target.value })
+              }
+              placeholder="Your name"
             />
-
-            <label>Username</label>
-
           </div>
 
-          <div className="input-box">
-
-            <i className="bx bx-envelope"></i>
-
+          <div className="form-group">
+            <label>Email</label>
             <input
               type="email"
-              name="email"
               value={form.email}
-              onChange={handleChange}
-              placeholder=" "
-              autoComplete="email"
-              required
-            />
-
-            <label>Email Address</label>
-
-          </div>
-
-          <div className="input-box">
-
-            <i className="bx bx-lock-alt"></i>
-
-            <input
-              type="password"
-              name="password"
-              value={form.password}
-              onChange={handleChange}
-              placeholder=" "
-              autoComplete="new-password"
-              required
-            />
-
-            <label>Password</label>
-
-          </div>
-
-          <div className="input-box">
-
-            <i className="bx bx-lock-alt"></i>
-
-            <input
-              type="password"
-              name="confirmPassword"
-              value={form.confirmPassword}
-              onChange={handleChange}
-              placeholder=" "
-              autoComplete="new-password"
-              required
-            />
-
-            <label>
-              Confirm Password
-            </label>
-
-          </div>
-
-          <div className="terms">
-
-            <input
-              type="checkbox"
-              checked={agreeTerms}
-              onChange={(event) =>
-                setAgreeTerms(
-                  event.target.checked
-                )
+              onChange={(e) =>
+                setForm({ ...form, email: e.target.value })
               }
+              placeholder="you@example.com"
             />
-
-            <label>
-              I agree to the{" "}
-              <a
-                href="#terms"
-                onClick={(event) =>
-                  event.preventDefault()
-                }
-              >
-                Terms & Conditions
-              </a>
-            </label>
-
           </div>
 
-          {error && (
-            <div className="form-error">
-              {error}
-            </div>
-          )}
+          <div className="form-group">
+            <label>Password</label>
+            <input
+              type="password"
+              value={form.password}
+              onChange={(e) =>
+                setForm({ ...form, password: e.target.value })
+              }
+              placeholder="Password"
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Confirm Password</label>
+            <input
+              type="password"
+              value={form.confirmPassword}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  confirmPassword: e.target.value
+                })
+              }
+              placeholder="Confirm password"
+            />
+          </div>
+
+          {error && <div className="form-error">{error}</div>}
 
           <button
-            type="submit"
-            className="signup-button"
+            className="auth-button"
             disabled={loading}
           >
-            {loading
-              ? "Creating Account..."
-              : "Create Account"}
-
-            {!loading && (
-              <i className="bx bx-right-arrow-alt"></i>
-            )}
+            {loading ? "Creating..." : "Create Account"}
           </button>
-
         </form>
 
-        <div className="login-link">
-
-          <p>
-            Already have an account?
-            <Link to="/login">
-              Login
-            </Link>
-          </p>
-
-        </div>
-
+        <p className="auth-footer">
+          Already have an account?{" "}
+          <Link to="/login">Login</Link>
+        </p>
       </div>
-
     </div>
   );
 }

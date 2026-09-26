@@ -23,6 +23,6 @@ VALUES
 
 INSERT INTO stock (product_id, location_id, quantity)
 VALUES
-(1, 1, 50),
+(1, 1, 15),
 (2, 1, 30),
 (3, 1, 100);

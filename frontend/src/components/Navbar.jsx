@@ -1,15 +1,36 @@
+import React from "react";
+import { useNavigate } from "react-router-dom";
+
 function Navbar() {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/login");
+  };
+
   return (
-    <header className="navbar">
-      <div className="navbar-brand">
+    <nav className="navbar">
+      <div className="navbar-left">
         <h2>StockSense</h2>
       </div>
 
-      <div className="navbar-user">
-        <span>Inventory Management</span>
+      <div className="navbar-right">
+        <button
+          className="profile-btn"
+          onClick={() => navigate("/profile")}
+        >
+          <i className="bx bx-user"></i>
+          Profile
+        </button>
+
+        <button className="logout-btn" onClick={handleLogout}>
+          <i className="bx bx-log-out"></i>
+          Logout
+        </button>
       </div>
-    </header>
-  )
+    </nav>
+  );
 }
 
-export default Navbar
+export default Navbar;

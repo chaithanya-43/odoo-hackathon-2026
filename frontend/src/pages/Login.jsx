@@ -1,162 +1,163 @@
-import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { login } from '../services/api'
-import '../Authentication.css'
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import "../Authentication.css";
+import { login } from "../services/api";
 
 function Login() {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
-  const [form, setForm] = useState({
-    email: '',
-    password: '',
-  })
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
 
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  function handleChange(event) {
-    const { name, value } = event.target
+  const handleChange = (event) => {
+    setFormData({
+      ...formData,
+      [event.target.name]: event.target.value,
+    });
+  };
 
-    setForm((previous) => ({
-      ...previous,
-      [name]: value,
-    }))
-  }
+  const handleSubmit = async (event) => {
+    event.preventDefault();
 
-  async function handleSubmit(event) {
-    event.preventDefault()
-    setError('')
+    setError("");
 
-    if (!form.email || !form.password) {
-      setError('Email and password are required.')
-      return
+    if (!formData.email || !formData.password) {
+      setError("Please enter email and password.");
+      return;
     }
 
     try {
-      setLoading(true)
+      setLoading(true);
 
-      const result = await login(form)
+      const response = await login(formData);
 
-      /*
-       * Keep the complete backend response temporarily.
-       * The exact JWT field will be integrated according
-       * to the authentication team's backend contract.
-       */
-      sessionStorage.setItem(
-        'authResponse',
-        JSON.stringify(result)
-      )
+      const data = response?.data || response;
 
-      navigate('/dashboard')
+      if (!data?.token) {
+        throw new Error(
+          "Login succeeded but no token was returned."
+        );
+      }
+
+      localStorage.setItem("token", data.token);
+
+      if (data.user) {
+        localStorage.setItem(
+          "user",
+          JSON.stringify(data.user)
+        );
+      }
+
+      navigate("/dashboard", {
+        replace: true,
+      });
     } catch (error) {
-      setError(error.message)
+      setError(
+        error.message ||
+          "Authentication failed."
+      );
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
-    <div className="auth-page">
-      <div className="auth-card">
+    <div className="signup-container">
+      <div className="signup-card">
 
-        <div className="auth-icon">
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-          >
-            <path d="M15 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-            <circle cx="8.5" cy="7" r="4" />
-            <path d="M19 8v6" />
-            <path d="M22 11h-6" />
-          </svg>
+        <div className="signup-header">
+
+          <div className="logo">
+            <i className="bx bx-lock-alt"></i>
+          </div>
+
+          <h1>Welcome Back</h1>
+
+          <p>
+            Login to your StockSense account
+          </p>
+
         </div>
-
-        <h1>Welcome Back</h1>
-
-        <p className="auth-subtitle">
-          Sign in to continue to StockSense
-        </p>
 
         <form onSubmit={handleSubmit}>
 
-          <div className="input-group">
-            <span className="input-icon">
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                <circle cx="12" cy="7" r="4" />
-              </svg>
-            </span>
+          <div className="input-box">
+
+            <i className="bx bx-envelope"></i>
 
             <input
-              id="email"
-              name="email"
               type="email"
-              value={form.email}
+              name="email"
+              value={formData.email}
               onChange={handleChange}
-              placeholder="Email Address"
+              placeholder=" "
               autoComplete="email"
+              required
             />
+
+            <label>Email Address</label>
+
           </div>
 
-          <div className="input-group">
-            <span className="input-icon">
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <rect x="5" y="11" width="14" height="10" rx="2" />
-                <path d="M8 11V7a4 4 0 0 1 8 0v4" />
-              </svg>
-            </span>
+          <div className="input-box">
+
+            <i className="bx bx-lock-alt"></i>
 
             <input
-              id="password"
-              name="password"
               type="password"
-              value={form.password}
+              name="password"
+              value={formData.password}
               onChange={handleChange}
-              placeholder="Password"
+              placeholder=" "
               autoComplete="current-password"
+              required
             />
+
+            <label>Password</label>
+
           </div>
 
           {error && (
-            <p className="form-error">
+            <div className="form-error">
               {error}
-            </p>
+            </div>
           )}
 
           <button
-            className="auth-button"
             type="submit"
+            className="signup-button"
             disabled={loading}
           >
-            {loading ? 'Signing In...' : 'Login'}
+            {loading
+              ? "Logging in..."
+              : "Login"}
 
             {!loading && (
-              <span className="button-arrow">→</span>
+              <i className="bx bx-right-arrow-alt"></i>
             )}
           </button>
 
         </form>
 
-        <p className="auth-footer">
-          Don't have an account?{' '}
-          <Link to="/signup">Create Account</Link>
-        </p>
+        <div className="login-link">
+
+          <p>
+            Don't have an account?
+            <Link to="/signup">
+              Create Account
+            </Link>
+          </p>
+
+        </div>
 
       </div>
     </div>
-  )
+  );
 }
 
-export default Login
+export default Login;

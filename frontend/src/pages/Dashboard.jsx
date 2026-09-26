@@ -1,90 +1,49 @@
-import { useEffect, useState } from "react";
-import StatCard from "../components/StatCard";
-import { getDashboard } from "../services/api";
+import React from "react";
 
-function Dashboard() {
-  const [dashboard, setDashboard] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  const loadDashboard = async () => {
-    try {
-      setLoading(true);
-      setError("");
-
-      const response = await getDashboard();
-
-      if (!response?.success) {
-        throw new Error(response?.message || "Unable to load dashboard.");
-      }
-
-      setDashboard(response.data || {});
-    } catch (err) {
-      setError(err.message || "Unable to load dashboard.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadDashboard();
-  }, []);
+function DataTable({ columns = [], data = [], loading = false }) {
+  if (loading) {
+    return (
+      <div className="table-loading">
+        Loading...
+      </div>
+    );
+  }
 
   return (
-    <div className="dashboard-page">
-      <div className="dashboard-header">
-        <div>
-          <h1>Dashboard</h1>
-          <p>StockSense Inventory Management System</p>
-        </div>
+    <div className="table-wrapper">
+      <table className="data-table">
+        <thead>
+          <tr>
+            {columns.map((column) => (
+              <th key={column.key}>{column.label}</th>
+            ))}
+          </tr>
+        </thead>
 
-        <button className="refresh-btn" onClick={loadDashboard}>
-          Refresh
-        </button>
-      </div>
-
-      {loading && (
-        <div className="dashboard-message">
-          Loading dashboard...
-        </div>
-      )}
-
-      {error && (
-        <div className="dashboard-error">
-          {error}
-        </div>
-      )}
-
-      {!loading && !error && (
-        <div className="stats-grid">
-          <StatCard
-            title="Total Products in Stock"
-            value={dashboard?.totalProductsInStock ?? 0}
-          />
-
-          <StatCard
-            title="Low / Out of Stock"
-            value={dashboard?.lowOrOutOfStock ?? 0}
-          />
-
-          <StatCard
-            title="Pending Receipts"
-            value={dashboard?.pendingReceipts ?? 0}
-          />
-
-          <StatCard
-            title="Pending Deliveries"
-            value={dashboard?.pendingDeliveries ?? 0}
-          />
-
-          <StatCard
-            title="Internal Transfers Scheduled"
-            value={dashboard?.internalTransfersScheduled ?? 0}
-          />
-        </div>
-      )}
+        <tbody>
+          {data.length === 0 ? (
+            <tr>
+              <td colSpan={columns.length} className="empty-table">
+                No records found
+              </td>
+            </tr>
+          ) : (
+            data.map((row, index) => (
+              <tr key={row.id || index}>
+                {columns.map((column) => (
+                  <td key={column.key}>
+                    {column.render
+                      ? column.render(row)
+                      : row[column.key] ?? "-"}
+                  </td>
+                ))}
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
     </div>
   );
 }
 
-export default Dashboard;
+export default DataTable;

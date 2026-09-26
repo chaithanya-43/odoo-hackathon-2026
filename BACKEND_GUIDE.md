@@ -1,114 +1,552 @@
-﻿# BACKEND_GUIDE.md
+﻿#### \# BACKEND GUIDE
 
-# Backend + Integration Guide
+#### 
 
-## Owner
+#### \## OWNER
 
-Member 1 - Team Leader
+#### 
 
-Branch:
-feature/backend-integration
+#### Member 1 - Team Leader
 
-## Mission
+#### 
 
-Build the backend that controls all inventory operations and integrate frontend, backend and database.
+#### Branch:
 
-## Responsibilities
+#### feature/backend-integration
 
-1. Backend project structure
-2. REST APIs
-3. Business logic
-4. Product APIs
-5. Dashboard APIs
-6. Receipt APIs
-7. Delivery APIs
-8. Transfer APIs
-9. Adjustment APIs
-10. Ledger APIs
-11. Stock calculations
-12. Validation
-13. Error handling
-14. Frontend integration
-15. Final integration
+#### 
 
-## Critical Rule
+#### \---
 
-Backend is the authority for stock.
+#### 
 
-Frontend must never directly modify stock.
+#### \# 1. RESPONSIBILITY
 
-## Stock Logic
+#### 
 
-Receipt:
-increase stock.
+#### Build and integrate the Node.js + Express backend.
 
-Delivery:
-decrease stock.
+#### 
 
-Transfer:
-move quantity between locations.
+#### The backend is the central authority for:
 
-Adjustment:
-set stock according to physical count and record the difference.
+#### 
 
-Every stock movement creates a ledger record.
+#### \- Authentication APIs
 
-## Required API Areas
+#### \- Product APIs
 
-/auth
-/products
-/dashboard
-/receipts
-/deliveries
-/transfers
-/adjustments
-/ledger
+#### \- Dashboard APIs
 
-## Integration Order
+#### \- Receipt processing
 
-1. Connect backend to database.
-2. Verify product creation.
-3. Verify receipt.
-4. Verify stock increase.
-5. Verify transfer.
-6. Verify location change.
-7. Verify delivery.
-8. Verify stock decrease.
-9. Verify adjustment.
-10. Verify ledger.
-11. Connect frontend.
-12. Run golden demo.
+#### \- Delivery processing
 
-## Allowed Changes
+#### \- Transfer processing
 
-Primary backend files and integration files.
+#### \- Adjustment processing
 
-Do not modify frontend design unnecessarily.
+#### \- Stock calculations
 
-Do not redesign database independently.
+#### \- Ledger creation
 
-## Testing
+#### \- Frontend integration
 
-Test at minimum:
+#### 
 
-- Valid receipt
-- Invalid quantity
-- Delivery greater than available stock
-- Transfer between locations
-- Adjustment
-- Ledger creation
-- Dashboard calculations
+#### \---
 
-## AI Instructions
+#### 
 
-AI must follow PROJECT_GUIDE.md.
+#### \# 2. BACKEND STRUCTURE
 
-AI must not:
-- redesign backend
-- create duplicate APIs
-- change database schema without coordination
-- add unnecessary frameworks
+#### 
 
-## Definition of Done
+#### backend/
 
-Backend is done when the complete golden demo works through real APIs and real database data.
+#### 
+
+#### ├── src/
+
+#### │   ├── config/
+
+#### │   │   └── db.js
+
+#### │   │
+
+#### │   ├── controllers/
+
+#### │   │   ├── authController.js
+
+#### │   │   ├── productController.js
+
+#### │   │   ├── dashboardController.js
+
+#### │   │   ├── receiptController.js
+
+#### │   │   ├── deliveryController.js
+
+#### │   │   ├── transferController.js
+
+#### │   │   ├── adjustmentController.js
+
+#### │   │   └── ledgerController.js
+
+#### │   │
+
+#### │   ├── middleware/
+
+#### │   │   ├── authMiddleware.js
+
+#### │   │   └── errorMiddleware.js
+
+#### │   │
+
+#### │   ├── routes/
+
+#### │   │   ├── authRoutes.js
+
+#### │   │   ├── productRoutes.js
+
+#### │   │   ├── dashboardRoutes.js
+
+#### │   │   ├── receiptRoutes.js
+
+#### │   │   ├── deliveryRoutes.js
+
+#### │   │   ├── transferRoutes.js
+
+#### │   │   ├── adjustmentRoutes.js
+
+#### │   │   └── ledgerRoutes.js
+
+#### │   │
+
+#### │   ├── services/
+
+#### │   │   ├── stockService.js
+
+#### │   │   ├── receiptService.js
+
+#### │   │   ├── deliveryService.js
+
+#### │   │   ├── transferService.js
+
+#### │   │   ├── adjustmentService.js
+
+#### │   │   └── dashboardService.js
+
+#### │   │
+
+#### │   ├── utils/
+
+#### │   │
+
+#### │   └── server.js
+
+#### │
+
+#### ├── package.json
+
+#### └── .env
+
+#### 
+
+#### \---
+
+#### 
+
+#### \# 3. CORE RULE
+
+#### 
+
+#### Controllers receive requests.
+
+#### 
+
+#### Services contain business logic.
+
+#### 
+
+#### Database queries access MySQL.
+
+#### 
+
+#### Stock calculations belong in services.
+
+#### 
+
+#### Do NOT put complex stock calculations directly inside routes.
+
+#### 
+
+#### \---
+
+#### 
+
+#### \# 4. STOCK SERVICE
+
+#### 
+
+#### stockService.js is the central stock authority.
+
+#### 
+
+#### Responsibilities:
+
+#### 
+
+#### \- get stock
+
+#### \- increase stock
+
+#### \- decrease stock
+
+#### \- transfer stock
+
+#### \- adjust stock
+
+#### \- create ledger entry
+
+#### 
+
+#### Concept:
+
+#### 
+
+#### receipt:
+
+#### increaseStock()
+
+#### 
+
+#### delivery:
+
+#### decreaseStock()
+
+#### 
+
+#### transfer:
+
+#### moveStock()
+
+#### 
+
+#### adjustment:
+
+#### adjustStock()
+
+#### 
+
+#### \---
+
+#### 
+
+#### \# 5. RECEIPT FLOW
+
+#### 
+
+#### POST /api/receipts
+
+#### 
+
+#### Create receipt.
+
+#### 
+
+#### POST /api/receipts/:id/validate
+
+#### 
+
+#### Validation must:
+
+#### 
+
+#### 1\. Confirm receipt exists.
+
+#### 2\. Confirm items exist.
+
+#### 3\. Validate quantities.
+
+#### 4\. Increase stock.
+
+#### 5\. Mark receipt Done.
+
+#### 6\. Create ledger entries.
+
+#### 
+
+#### \---
+
+#### 
+
+#### \# 6. DELIVERY FLOW
+
+#### 
+
+#### Create delivery.
+
+#### 
+
+#### Validation must:
+
+#### 
+
+#### 1\. Confirm delivery exists.
+
+#### 2\. Check available stock.
+
+#### 3\. Reject insufficient stock.
+
+#### 4\. Decrease stock.
+
+#### 5\. Mark delivery Done.
+
+#### 6\. Create ledger entry.
+
+#### 
+
+#### \---
+
+#### 
+
+#### \# 7. TRANSFER FLOW
+
+#### 
+
+#### Validation must:
+
+#### 
+
+#### 1\. Verify source location.
+
+#### 2\. Verify destination location.
+
+#### 3\. Verify available source stock.
+
+#### 4\. Decrease source stock.
+
+#### 5\. Increase destination stock.
+
+#### 6\. Create ledger entry.
+
+#### 
+
+#### Company total stock must remain unchanged.
+
+#### 
+
+#### \---
+
+#### 
+
+#### \# 8. ADJUSTMENT FLOW
+
+#### 
+
+#### Validation must:
+
+#### 
+
+#### 1\. Get current stock.
+
+#### 2\. Receive physical count.
+
+#### 3\. Calculate difference.
+
+#### 4\. Set stock to physical count.
+
+#### 5\. Create ledger entry.
+
+#### 6\. Mark adjustment complete.
+
+#### 
+
+#### \---
+
+#### 
+
+#### \# 9. DASHBOARD
+
+#### 
+
+#### GET /api/dashboard
+
+#### 
+
+#### Return:
+
+#### 
+
+#### \- total stock
+
+#### \- low/out of stock count
+
+#### \- pending receipts
+
+#### \- pending deliveries
+
+#### \- scheduled transfers
+
+#### 
+
+#### Keep calculations on backend.
+
+#### 
+
+#### \---
+
+#### 
+
+#### \# 10. ERROR HANDLING
+
+#### 
+
+#### Return consistent JSON:
+
+#### 
+
+#### {
+
+#### &#x20; "success": false,
+
+#### &#x20; "message": "Insufficient stock"
+
+#### }
+
+#### 
+
+#### HTTP status codes should be meaningful.
+
+#### 
+
+#### Examples:
+
+#### 
+
+#### 400 = invalid input
+
+#### 401 = unauthenticated
+
+#### 403 = unauthorized
+
+#### 404 = not found
+
+#### 500 = server error
+
+#### 
+
+#### \---
+
+#### 
+
+#### \# 11. ENVIRONMENT
+
+#### 
+
+#### Use .env.
+
+#### 
+
+#### Example:
+
+#### 
+
+#### PORT=5000
+
+#### DB\_HOST=localhost
+
+#### DB\_PORT=3306
+
+#### DB\_USER=root
+
+#### DB\_PASSWORD=
+
+#### DB\_NAME=stocksense
+
+#### JWT\_SECRET=
+
+#### 
+
+#### Never commit real secrets.
+
+#### 
+
+#### \---
+
+#### 
+
+#### \# 12. TEST ORDER
+
+#### 
+
+#### Test in this order:
+
+#### 
+
+#### 1\. Server starts
+
+#### 2\. Database connects
+
+#### 3\. Login
+
+#### 4\. Product creation
+
+#### 5\. Receipt
+
+#### 6\. Stock increase
+
+#### 7\. Transfer
+
+#### 8\. Location change
+
+#### 9\. Delivery
+
+#### 10\. Stock decrease
+
+#### 11\. Adjustment
+
+#### 12\. Ledger
+
+#### 13\. Dashboard
+
+#### 
+
+#### \---
+
+#### 
+
+#### \# 13. DO NOT
+
+#### 
+
+#### Do not:
+
+#### 
+
+#### \- access database from frontend
+
+#### \- create duplicate inventory logic
+
+#### \- change database schema independently
+
+#### \- introduce another backend framework
+
+#### \- introduce microservices
+
+#### \- add AI to stock calculations
+
+#### \- redesign API contracts without Team Leader approval
+
+#### 
+
+#### \---
+
+#### 
+
+#### \# 14. DONE
+
+#### 
+
+#### Backend is complete when the golden demo works entirely through real APIs.
+

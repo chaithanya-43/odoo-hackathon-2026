@@ -1,140 +1,446 @@
-﻿# PRESENTATION.md
+﻿#### \# STOCKSENSE PRESENTATION GUIDE
 
-# StockSense - Final Presentation & Demo Guide
+#### 
 
-## Video Requirement
+#### \## VIDEO TARGET
 
-The event email specifies an open-access solution video covering the functional flow, with a maximum duration of approximately 5-6 minutes.
+#### 
 
-Keep the demonstration focused on working functionality.
+#### Target:
 
-## Presentation Structure
+#### 5-6 minutes
 
-### 0:00 - 0:30
-Introduction
+#### 
 
-Say:
+#### Only demonstrate working functionality.
 
-"Good morning. We are presenting StockSense, a modular Inventory Management System designed to centralize inventory operations for inventory managers and warehouse staff."
+#### 
 
-## 0:30 - 1:00
-Problem
+#### \---
 
-Explain:
+#### 
 
-"Inventory is often tracked using manual registers, Excel sheets and scattered records. This makes stock visibility and movement tracking difficult."
+#### \# 1. INTRODUCTION
 
-## 1:00 - 1:30
-Solution
+#### 
 
-Explain:
+#### "Good morning. We are presenting StockSense, a modular Inventory Management System designed for inventory managers and warehouse staff."
 
-"StockSense centralizes products, stock, receipts, deliveries, internal transfers, adjustments and the stock ledger in one system."
+#### 
 
-## 1:30 - 4:30
-Functional Demo
+#### \---
 
-Follow exactly:
+#### 
 
-1. Login
-2. Dashboard
-3. Create/open product
-4. Receive 100 units
-5. Show stock = 100
-6. Transfer stock to another location
-7. Show location change
-8. Deliver 20 units
-9. Show stock = 80
-10. Adjust 3 damaged units
-11. Show stock = 77
-12. Open ledger
-13. Show receipt, transfer, delivery and adjustment history
+#### \# 2. PROBLEM
 
-## 4:30 - 5:00
-Additional Features
+#### 
 
-Show:
-- Low-stock alerts
-- Search
-- Filters
-- Multi-location/warehouse support
-- Profile
+#### "Inventory is often managed through manual registers, spreadsheets and scattered records. This makes it difficult to maintain real-time stock visibility and track inventory movements."
 
-Only demonstrate features that actually work.
+#### 
 
-## 5:00 - 5:30
-Architecture
+#### \---
 
-Explain:
+#### 
 
-"The frontend communicates with the backend through REST APIs. The backend contains the inventory business logic and communicates with the database. All stock movements are recorded in the stock ledger."
+#### \# 3. SOLUTION
 
-## 5:30 - 6:00
-Closing
+#### 
 
-Say:
+#### "StockSense centralizes products, stock, receipts, deliveries, internal transfers, adjustments and movement history in one system."
 
-"StockSense provides a centralized workflow for tracking inventory from receipt to delivery, while maintaining location-level stock and a complete movement history."
+#### 
 
-## Demo Rules
+#### \---
 
-DO:
-- Use prepared demo data.
-- Follow one clean flow.
-- Keep screens ready.
-- Explain only working features.
-- Keep the video within the required duration.
+#### 
 
-DO NOT:
-- Demonstrate broken features.
-- Start coding during the video.
-- Explain unnecessary implementation details.
-- Spend time on features outside the problem statement.
+#### \# 4. DEMO
 
-## Reviewer Questions
+#### 
 
-### Why is backend responsible for stock?
-Because stock must remain consistent regardless of which frontend screen performs an operation.
+#### \## Step 1
 
-### What happens when stock is received?
-The receipt is validated and the backend increases stock and records the movement.
+#### 
 
-### What happens during a transfer?
-Stock decreases at the source location and increases at the destination location. Total company stock remains unchanged.
+#### Login.
 
-### What happens during delivery?
-Validated delivery decreases available stock and creates a ledger entry.
+#### 
 
-### What is an adjustment?
-An adjustment reconciles recorded stock with the physical counted quantity and records the change.
+#### \## Step 2
 
-### Why maintain a ledger?
-It provides traceability for inventory movements.
+#### 
 
-### How does the dashboard get its values?
-The backend calculates dashboard information from the stored inventory and operation data.
+#### Open Dashboard.
 
-### How does the system support multiple warehouses?
-Stock is associated with warehouse/location information so inventory can be viewed and moved by location.
+#### 
 
-### What happens if someone tries to deliver more stock than available?
-The backend validates available stock and should reject invalid operations.
+#### Show:
 
-## Final Checklist
+#### 
 
-[ ] Login works
-[ ] Dashboard works
-[ ] Product works
-[ ] Receipt works
-[ ] Transfer works
-[ ] Delivery works
-[ ] Adjustment works
-[ ] Ledger works
-[ ] Search works
-[ ] Filters work
-[ ] Low-stock information works
-[ ] Repository is public/accessibly shared as required
-[ ] Latest working code is in main
-[ ] Every member has own commits
-[ ] Video link is accessible
-[ ] Video follows required duration
+#### \- Total stock
+
+#### \- Low stock
+
+#### \- Pending receipts
+
+#### \- Pending deliveries
+
+#### \- Transfers
+
+#### 
+
+#### \## Step 3
+
+#### 
+
+#### Open Products.
+
+#### 
+
+#### Create/select product.
+
+#### 
+
+#### \## Step 4
+
+#### 
+
+#### Create Receipt.
+
+#### 
+
+#### Receive:
+
+#### 
+
+#### 100 units
+
+#### 
+
+#### Validate.
+
+#### 
+
+#### Show:
+
+#### 
+
+#### Stock = 100
+
+#### 
+
+#### \## Step 5
+
+#### 
+
+#### Create Internal Transfer.
+
+#### 
+
+#### Move stock:
+
+#### 
+
+#### Warehouse
+
+#### →
+
+#### Production Rack
+
+#### 
+
+#### Show location change.
+
+#### 
+
+#### \## Step 6
+
+#### 
+
+#### Create Delivery.
+
+#### 
+
+#### Deliver:
+
+#### 
+
+#### 20 units
+
+#### 
+
+#### Validate.
+
+#### 
+
+#### Show:
+
+#### 
+
+#### Stock = 80
+
+#### 
+
+#### \## Step 7
+
+#### 
+
+#### Create Adjustment.
+
+#### 
+
+#### Damaged:
+
+#### 
+
+#### 3 units
+
+#### 
+
+#### Show:
+
+#### 
+
+#### Stock = 77
+
+#### 
+
+#### \## Step 8
+
+#### 
+
+#### Open Ledger.
+
+#### 
+
+#### Show:
+
+#### 
+
+#### Receipt
+
+#### Transfer
+
+#### Delivery
+
+#### Adjustment
+
+#### 
+
+#### \---
+
+#### 
+
+#### \# 5. ARCHITECTURE EXPLANATION
+
+#### 
+
+#### "The React frontend communicates with the Node.js and Express backend through REST APIs. The backend contains the inventory business logic and communicates with MySQL. Stock changes are handled by the backend and every movement is recorded in the stock ledger."
+
+#### 
+
+#### \---
+
+#### 
+
+#### \# 6. ADDITIONAL FEATURES
+
+#### 
+
+#### If working:
+
+#### 
+
+#### \- Search
+
+#### \- Filters
+
+#### \- Low-stock alerts
+
+#### \- Multiple warehouses/locations
+
+#### \- Profile
+
+#### 
+
+#### Only demonstrate working features.
+
+#### 
+
+#### \---
+
+#### 
+
+#### \# 7. REVIEW QUESTIONS
+
+#### 
+
+#### \## Why use a backend for stock?
+
+#### 
+
+#### Because the backend provides one authoritative place for inventory calculations.
+
+#### 
+
+#### \## What happens when receiving stock?
+
+#### 
+
+#### The validated receipt increases the product quantity and creates a ledger record.
+
+#### 
+
+#### \## What happens during delivery?
+
+#### 
+
+#### The backend verifies available stock, decreases the quantity and creates a ledger record.
+
+#### 
+
+#### \## What happens during transfer?
+
+#### 
+
+#### The quantity moves from the source location to the destination location while total company stock remains unchanged.
+
+#### 
+
+#### \## What is an adjustment?
+
+#### 
+
+#### It reconciles recorded stock with the physical counted quantity.
+
+#### 
+
+#### \## Why maintain a ledger?
+
+#### 
+
+#### For traceability of inventory movements.
+
+#### 
+
+#### \## How do you prevent invalid delivery?
+
+#### 
+
+#### The backend checks available stock before validating the delivery.
+
+#### 
+
+#### \## How does multi-location inventory work?
+
+#### 
+
+#### Stock is associated with product and location, allowing inventory to be tracked separately by location.
+
+#### 
+
+#### \---
+
+#### 
+
+#### \# 8. FINAL CHECKLIST
+
+#### 
+
+#### \[ ] Login works
+
+#### \[ ] Dashboard works
+
+#### \[ ] Product works
+
+#### \[ ] Receipt works
+
+#### \[ ] Transfer works
+
+#### \[ ] Delivery works
+
+#### \[ ] Adjustment works
+
+#### \[ ] Ledger works
+
+#### \[ ] Search works
+
+#### \[ ] Filters work
+
+#### \[ ] Low-stock works
+
+#### \[ ] Main contains latest code
+
+#### \[ ] Each member has commits
+
+#### \[ ] Repository accessible
+
+#### \[ ] Video accessible
+
+#### \[ ] Demo completed within required duration
+
+#### 
+
+#### \---
+
+#### 
+
+#### \# 9. GOLDEN DEMO NUMBERS
+
+#### 
+
+#### Receipt:
+
+#### +100
+
+#### 
+
+#### Transfer:
+
+#### 0 total change
+
+#### 
+
+#### Delivery:
+
+#### \-20
+
+#### 
+
+#### Adjustment:
+
+#### \-3
+
+#### 
+
+#### Final:
+
+#### 77
+
+#### 
+
+#### \---
+
+#### 
+
+#### \# 10. PRESENTATION RULE
+
+#### 
+
+#### Do not explain features that are not implemented.
+
+#### 
+
+#### Do not open unnecessary files.
+
+#### 
+
+#### Do not demonstrate broken functionality.
+
+#### 
+
+#### Keep the flow simple and continuous.
+

@@ -1,149 +1,764 @@
-﻿# DATABASE_GUIDE.md
+﻿#### \# DATABASE GUIDE
 
-# Database Guide
+#### 
 
-## Owner
+#### \## OWNER
 
-Member 3
+#### 
 
-Branch:
-feature/database
+#### Member 3
 
-## Mission
+#### 
 
-Create the database structure required by StockSense and provide reliable demo data.
+#### Branch:
 
-## Core Data
+#### feature/database
 
-The database must support:
+#### 
 
-- Users
-- Products
-- Categories
-- Warehouses
-- Locations
-- Stock
-- Receipts
-- Receipt items
-- Deliveries
-- Delivery items
-- Internal transfers
-- Transfer items
-- Inventory adjustments
-- Stock ledger
-- Reordering/low-stock information
+#### \---
 
-## Suggested Relationships
+#### 
 
-User
-→ owns/creates operations
+#### \# 1. TECHNOLOGY
 
-Category
-→ Products
+#### 
 
-Warehouse
-→ Locations
+#### MySQL
 
-Product + Location
-→ Stock
+#### 
 
-Receipt
-→ Receipt Items
-→ Product
+#### Database name:
 
-Delivery
-→ Delivery Items
-→ Product
+#### 
 
-Transfer
-→ Transfer Items
-→ Product
+#### stocksense
 
-Adjustment
-→ Product + Location
+#### 
 
-All stock movements
-→ Stock Ledger
+#### \---
 
-## Important Rule
+#### 
 
-Do not store multiple conflicting sources of truth for stock.
+#### \# 2. DATABASE STRUCTURE
 
-The database structure must allow backend services to determine:
+#### 
 
-Product
-+
-Location
-+
-Current quantity
+#### database/
 
-## Ledger
+#### 
 
-Each stock-changing operation should record:
+#### ├── schema.sql
 
-- Product
-- Movement type
-- Quantity
-- Source location where applicable
-- Destination location where applicable
-- Reference document
-- Timestamp
-- User where applicable
+#### ├── seed.sql
 
-Movement types:
+#### └── README.md
 
-RECEIPT
-DELIVERY
-TRANSFER
-ADJUSTMENT
+#### 
 
-## Demo Data
+#### \---
 
-Create enough seed data to demonstrate:
+#### 
 
-- Products
-- Categories
-- At least one warehouse
-- Multiple locations
-- Initial stock
-- Example low-stock product
-- Data usable by dashboard
+#### \# 3. TABLES
 
-## Database Safety
+#### 
 
-Do not delete another member's data.
+#### Create these tables:
 
-Do not change tables randomly after backend integration begins.
+#### 
 
-Any schema change must be communicated to Member 1.
+#### users
 
-## Integration Order
+#### categories
 
-1. Create schema.
-2. Create relationships.
-3. Create seed data.
-4. Verify database connection.
-5. Tell Member 1 exact connection/setup instructions.
-6. Test backend queries.
-7. Freeze schema as early as possible.
+#### products
 
-## AI Instructions
+#### warehouses
 
-AI must follow PROJECT_GUIDE.md.
+#### locations
 
-Do not allow AI to invent a completely different schema.
+#### stock
 
-Do not create duplicate stock tables without approval.
+#### receipts
 
-## Definition of Done
+#### receipt\_items
 
-Database is done when backend can perform:
+#### deliveries
 
-Product creation
-→ Receipt
-→ Transfer
-→ Delivery
-→ Adjustment
-→ Ledger
+#### delivery\_items
 
-using real persistent data.
+#### transfers
+
+#### transfer\_items
+
+#### adjustments
+
+#### stock\_ledger
+
+#### 
+
+#### \---
+
+#### 
+
+#### \# 4. USERS
+
+#### 
+
+#### users
+
+#### 
+
+#### Purpose:
+
+#### Authentication and ownership.
+
+#### 
+
+#### Fields should include:
+
+#### 
+
+#### id
+
+#### name
+
+#### email
+
+#### password\_hash
+
+#### role
+
+#### created\_at
+
+#### 
+
+#### Roles:
+
+#### 
+
+#### INVENTORY\_MANAGER
+
+#### WAREHOUSE\_STAFF
+
+#### 
+
+#### \---
+
+#### 
+
+#### \# 5. CATEGORIES
+
+#### 
+
+#### categories
+
+#### 
+
+#### Fields:
+
+#### 
+
+#### id
+
+#### name
+
+#### created\_at
+
+#### 
+
+#### \---
+
+#### 
+
+#### \# 6. PRODUCTS
+
+#### 
+
+#### products
+
+#### 
+
+#### Fields:
+
+#### 
+
+#### id
+
+#### name
+
+#### sku
+
+#### category\_id
+
+#### unit\_of\_measure
+
+#### reorder\_level
+
+#### created\_at
+
+#### updated\_at
+
+#### 
+
+#### SKU should be unique.
+
+#### 
+
+#### \---
+
+#### 
+
+#### \# 7. WAREHOUSES
+
+#### 
+
+#### warehouses
+
+#### 
+
+#### Fields:
+
+#### 
+
+#### id
+
+#### name
+
+#### address
+
+#### created\_at
+
+#### 
+
+#### \---
+
+#### 
+
+#### \# 8. LOCATIONS
+
+#### 
+
+#### locations
+
+#### 
+
+#### Fields:
+
+#### 
+
+#### id
+
+#### warehouse\_id
+
+#### name
+
+#### created\_at
+
+#### 
+
+#### Examples:
+
+#### 
+
+#### Main Warehouse
+
+#### Production Rack
+
+#### Storage Rack
+
+#### 
+
+#### \---
+
+#### 
+
+#### \# 9. STOCK
+
+#### 
+
+#### stock
+
+#### 
+
+#### Represents product quantity at a location.
+
+#### 
+
+#### Fields:
+
+#### 
+
+#### id
+
+#### product\_id
+
+#### location\_id
+
+#### quantity
+
+#### updated\_at
+
+#### 
+
+#### Important:
+
+#### 
+
+#### product\_id + location\_id should represent one stock record.
+
+#### 
+
+#### \---
+
+#### 
+
+#### \# 10. RECEIPTS
+
+#### 
+
+#### receipts
+
+#### 
+
+#### Fields:
+
+#### 
+
+#### id
+
+#### supplier\_name
+
+#### status
+
+#### warehouse\_id
+
+#### created\_by
+
+#### created\_at
+
+#### validated\_at
+
+#### 
+
+#### Statuses:
+
+#### 
+
+#### DRAFT
+
+#### WAITING
+
+#### READY
+
+#### DONE
+
+#### CANCELED
+
+#### 
+
+#### \---
+
+#### 
+
+#### \# 11. RECEIPT ITEMS
+
+#### 
+
+#### receipt\_items
+
+#### 
+
+#### Fields:
+
+#### 
+
+#### id
+
+#### receipt\_id
+
+#### product\_id
+
+#### quantity
+
+#### 
+
+#### \---
+
+#### 
+
+#### \# 12. DELIVERIES
+
+#### 
+
+#### deliveries
+
+#### 
+
+#### Fields:
+
+#### 
+
+#### id
+
+#### status
+
+#### warehouse\_id
+
+#### created\_by
+
+#### created\_at
+
+#### validated\_at
+
+#### 
+
+#### \---
+
+#### 
+
+#### \# 13. DELIVERY ITEMS
+
+#### 
+
+#### delivery\_items
+
+#### 
+
+#### Fields:
+
+#### 
+
+#### id
+
+#### delivery\_id
+
+#### product\_id
+
+#### location\_id
+
+#### quantity
+
+#### 
+
+#### \---
+
+#### 
+
+#### \# 14. TRANSFERS
+
+#### 
+
+#### transfers
+
+#### 
+
+#### Fields:
+
+#### 
+
+#### id
+
+#### source\_location\_id
+
+#### destination\_location\_id
+
+#### status
+
+#### created\_by
+
+#### created\_at
+
+#### validated\_at
+
+#### 
+
+#### \---
+
+#### 
+
+#### \# 15. TRANSFER ITEMS
+
+#### 
+
+#### transfer\_items
+
+#### 
+
+#### Fields:
+
+#### 
+
+#### id
+
+#### transfer\_id
+
+#### product\_id
+
+#### quantity
+
+#### 
+
+#### \---
+
+#### 
+
+#### \# 16. ADJUSTMENTS
+
+#### 
+
+#### adjustments
+
+#### 
+
+#### Fields:
+
+#### 
+
+#### id
+
+#### product\_id
+
+#### location\_id
+
+#### previous\_quantity
+
+#### counted\_quantity
+
+#### difference
+
+#### reason
+
+#### created\_by
+
+#### created\_at
+
+#### 
+
+#### \---
+
+#### 
+
+#### \# 17. STOCK LEDGER
+
+#### 
+
+#### stock\_ledger
+
+#### 
+
+#### Fields:
+
+#### 
+
+#### id
+
+#### product\_id
+
+#### movement\_type
+
+#### quantity
+
+#### source\_location\_id
+
+#### destination\_location\_id
+
+#### reference\_type
+
+#### reference\_id
+
+#### created\_by
+
+#### created\_at
+
+#### 
+
+#### Movement types:
+
+#### 
+
+#### RECEIPT
+
+#### DELIVERY
+
+#### TRANSFER
+
+#### ADJUSTMENT
+
+#### 
+
+#### \---
+
+#### 
+
+#### \# 18. RELATIONSHIPS
+
+#### 
+
+#### categories
+
+#### &#x20;   ↓
+
+#### products
+
+#### 
+
+#### warehouses
+
+#### &#x20;   ↓
+
+#### locations
+
+#### 
+
+#### products + locations
+
+#### &#x20;   ↓
+
+#### stock
+
+#### 
+
+#### receipts
+
+#### &#x20;   ↓
+
+#### receipt\_items
+
+#### &#x20;   ↓
+
+#### products
+
+#### 
+
+#### deliveries
+
+#### &#x20;   ↓
+
+#### delivery\_items
+
+#### &#x20;   ↓
+
+#### products
+
+#### 
+
+#### transfers
+
+#### &#x20;   ↓
+
+#### transfer\_items
+
+#### &#x20;   ↓
+
+#### products
+
+#### 
+
+#### products
+
+#### &#x20;   ↓
+
+#### stock\_ledger
+
+#### 
+
+#### \---
+
+#### 
+
+#### \# 19. SEED DATA
+
+#### 
+
+#### Create demo data for:
+
+#### 
+
+#### Users
+
+#### Categories
+
+#### Products
+
+#### Warehouse
+
+#### Locations
+
+#### Initial stock
+
+#### 
+
+#### At least one product should be low-stock for dashboard testing.
+
+#### 
+
+#### \---
+
+#### 
+
+#### \# 20. DATABASE RULES
+
+#### 
+
+#### Do not:
+
+#### 
+
+#### \- duplicate stock records
+
+#### \- store plaintext passwords
+
+#### \- delete required relationships
+
+#### \- change schema silently
+
+#### \- create tables outside this architecture
+
+#### 
+
+#### Any schema change must be communicated to Member 1.
+
+#### 
+
+#### \---
+
+#### 
+
+#### \# 21. DEMO DATA
+
+#### 
+
+#### Create enough data for:
+
+#### 
+
+#### 100 units received
+
+#### Transfer to Production Rack
+
+#### 20 units delivered
+
+#### 3 units adjusted
+
+#### 
+
+#### Final demo quantity:
+
+#### 
+
+#### 77 units
+
+#### 
+
+#### \---
+
+#### 
+
+#### \# 22. DONE
+
+#### 
+
+#### Database is complete when the backend can execute the entire golden demo using persistent MySQL data.
+
